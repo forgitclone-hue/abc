@@ -1,49 +1,50 @@
-name: WhatsApp Bot - PM2 Runtime 5h Cycle
+name: WhatsApp Bot - Safe 6h Cycle
 
 on:
-  # Every 5 hours (at :00)
   schedule:
-    - cron: '0 */5 * * *'
+    - cron: '0 */6 * * *'       # 00:00, 06:00, 12:00, 18:00 UTC
+    - cron: '30 */6 * * *'      # 00:30, 06:30, 12:30, 18:30 UTC (offset)
 
-  # You can manually start it anytime from Actions tab
-  workflow_dispatch:
+  workflow_dispatch:            # Manual restart anytime
 
-# ── Very important ── Prevents multiple bot instances running at once
 concurrency:
-  group: whatsapp-bot-pm2
+  group: whatsapp-bot-6h
   cancel-in-progress: true
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 320          # 5h + 20min buffer
+    
+    # Safety: self-limit to 5h 45min (under 6h hard cap)
+    timeout-minutes: 345
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci || npm install --legacy-peer-deps
 
-      - name: Start WhatsApp Bot (PM2 Runtime)
+      - name: Start WhatsApp Bot
         run: |
-          echo "═══════════════════════════════════════════════"
-          echo "   WhatsApp Bot starting   $(date '+%Y-%m-%d %H:%M:%S')"
-          echo "   Schedule: every 5 hours"
-          echo "   Using:    npx pm2-runtime start start.js"
-          echo "═══════════════════════════════════════════════"
+          echo "Bot periodic run - $(date '+%Y-%m-%d %H:%M:%S')"
+          echo "Max expected runtime: ~5.5 hours"
+          echo "Next automatic run in ~6 hours"
           echo ""
 
-          # The exact command you requested
-          npx pm2-runtime start start.js --name "whatsapp-bot"
+           Choose your preferred start command:
+          A) Simple (cleanest, recommended)
+          node start.js || echo "Bot ended"
 
-          # Optional: more stable flags (uncomment if bot dies too often)
-          # npx pm2-runtime start start.js --name "whatsapp-bot" \
-          #   --deep-monitoring \
-          #   --exp-backoff-restart-delay=100
+          # B) With restarts inside the job (more uptime, slightly more visible)
+          # while true; do
+          #   echo "[$(date '+%H:%M:%S')] Starting bot..."
+          #   node start.js || echo "→ Restarting in 10s"
+          #   sleep 10
+          # done
