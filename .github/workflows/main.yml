@@ -2,9 +2,7 @@ name: WhatsApp Bot - Safe 6h Cycle
 
 on:
   schedule:
-    - cron: '0 */6 * * *'       # 00:00, 06:00, 12:00, 18:00 UTC
-    - cron: '30 */6 * * *'      # 00:30, 06:30, 12:30, 18:30 UTC (offset)
-
+    - cron: '0 */7 * * *'       # 00:00, 07:00, 14:00, 21:00 UTC
   workflow_dispatch:
 
 concurrency:
@@ -36,11 +34,11 @@ jobs:
           echo "Next automatic run in ~6 hours"
           echo ""
 
-          node start.js || echo "Bot ended/crashed"
+          npm start || echo "Bot ended/crashed"
 
           # B) Auto-restart loop (uncomment if you want it instead)
           # while true; do
           #   echo "[$(date '+%H:%M:%S')] Starting bot..."
-          #   node start.js || echo "Bot stopped → restarting in 10s"
+          #   npm start || echo "Bot stopped → restarting in 10s"
           #   sleep 10
           # done
