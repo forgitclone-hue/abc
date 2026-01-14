@@ -22,9 +22,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'                  # ← enables npm cache → much faster installs
 
       - name: Install dependencies (including pm2)
-        run: npm ci                     # clean & fast install
+        run: npm install                # ← changed from npm ci → more forgiving
 
       - name: Start WhatsApp Bot with PM2 Runtime
         run: |
