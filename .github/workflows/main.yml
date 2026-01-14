@@ -41,10 +41,3 @@ jobs:
            Choose your preferred start command:
           A) Simple (cleanest, recommended)
           node start.js || echo "Bot ended"
-
-          # B) With restarts inside the job (more uptime, slightly more visible)
-          # while true; do
-          #   echo "[$(date '+%H:%M:%S')] Starting bot..."
-          #   node start.js || echo "→ Restarting in 10s"
-          #   sleep 10
-          # done
