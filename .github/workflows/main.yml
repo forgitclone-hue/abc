@@ -1,11 +1,9 @@
-name: WhatsApp Bot Runner
+name: WhatsApp Bot - PM2 Runtime (Safe & Better Stability)
 
-# Schedule the workflow to restart the bot every 5 hours
-# and allow manual trigger
 on:
   schedule:
-    - cron: "0 */5 * * *"  # every 5 hours
-  workflow_dispatch:
+    - cron: '0 */4 * * *'           # every 4 hours - very safe for GitHub
+  workflow_dispatch:                # ← allows manual run after code changes
 
 concurrency:
   group: whatsapp-bot
@@ -14,23 +12,28 @@ concurrency:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    timeout-minutes: 250            # a bit longer than schedule interval
 
     steps:
-      # Step 1: Checkout your repo
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'   # Use your Node version
+          node-version: '20'
 
-      # Step 3: Install dependencies
-      - name: Install Dependencies
-        run: npm install
+      - name: Install dependencies (including pm2)
+        run: npm ci                     # clean & fast install
 
-      # Step 4: Run the bot
-      - name: Start Bot
+      - name: Start WhatsApp Bot with PM2 Runtime
         run: |
-          node start.js
+          echo "Starting bot with pm2-runtime - $(date)"
+          echo "PM2 will auto-restart on crash / uncaught exceptions"
+          echo "Job will run until ~4h timeout or natural death"
+          
+          # ── The magic line ──
+          npx pm2-runtime start start.js --name "ASITHA-MD"
+          
+          # Optional: more aggressive flags (try if you have many crashes)
+          # npx pm2-runtime start start.js --name "ASITHA-MD" --deep-monitoring --exp-backoff-restart-delay=100
