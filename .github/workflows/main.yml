@@ -2,7 +2,7 @@ name: WhatsApp Bot - Safe 6h Cycle
 
 on:
   schedule:
-    - cron: '30 */6 * * *'       # 00:00, 07:00, 14:00, 21:00 UTC
+    - cron: '0 */6 * * *'       # 00:00, 07:00, 14:00, 21:00 UTC
   workflow_dispatch:
 
 concurrency:
